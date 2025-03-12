@@ -9,12 +9,12 @@ def cartesian_product(x, y):  # makes array with (y_size, x_size, 2, 3)
     y_r = np.repeat(y, dim_x, axis=0).reshape((dim_y, dim_x, dim_info))
     return np.concatenate([x_r, y_r], axis=2).reshape((dim_y, dim_x, 2, dim_info))
 
-def point_layer_phases_build(phases_count: int, amplitude: float) -> np.ndarray:
+def point_layer_phases_build(phases_count: int, amplitude: float) -> np.ndarray[float]:
     info = np.zeros((1, phases_count))
     info[0, 0] = amplitude
     return info
 
-def uniform_layer_phases_build(layer: np.ndarray, phases_count: int, amplitude: float) -> np.ndarray:
+def uniform_layer_phases_build(layer: np.ndarray, phases_count: int, amplitude: float) -> np.ndarray[float]:
     return np.tile(point_layer_phases_build(phases_count, amplitude), (layer.shape[0], 1))
 
 def effect_layer_by_another(
@@ -29,7 +29,8 @@ def effect_layer_by_another(
     cartesian_positions = cartesian_product(to_effect, effect_by_pos)
     distances = cartesian_positions[:, :, 0, :] - cartesian_positions[:, :, 1, :]
     distances = np.sqrt((distances*distances).sum(axis=2))
-    cartesian_phases /= distances[:, :, np.newaxis]  # TODO this method has a problem related to amplitude skyrocketing if distance is small while it must not theoretically exceed source amplitude
+    cartesian_phases *= np.exp(distances * -1)[:, :, np.newaxis]
+    #cartesian_phases /= distances[:, :, np.newaxis]  # TODO this method has a problem related to amplitude skyrocketing if distance is small while it must not theoretically exceed source amplitude
 
     offsets = np.mod(np.floor(phase_resolution * distances / wavelength), phase_resolution).astype(np.int8)
     rows, columns, thr_indices = np.ogrid[:cartesian_phases.shape[0], :cartesian_phases.shape[1], :cartesian_phases.shape[2]]
@@ -47,7 +48,7 @@ def calculate_mean_intensity(layer_phases: np.ndarray) -> np.ndarray[float]:
     cos_values = np.cos(cartesian_phases[:, 0] - cartesian_phases[:, 1])
     return (np.repeat(layer_phases, phase_resolution, axis=1) * np.tile(layer_phases, phase_resolution) * cos_values[np.newaxis, :]).sum(axis=1)
 
-def create_line_points(width: float, resolution: int) -> np.ndarray:
+def create_line_points(width: float, resolution: int) -> np.ndarray[float]:
     dots = np.zeros((resolution, 3))
     dots[:, 0] = np.linspace(-width/2, width/2, resolution)
     return dots

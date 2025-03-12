@@ -18,6 +18,15 @@ def display_1D_extrapolate(x_axis: np.ndarray[float], intensities: np.ndarray):
     interpolation can be as follows
     'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'blackman'
     '''
-    plt.imshow(intensities.repeat(len(intensities), axis=0).reshape((len(intensities), len(intensities))), cmap='viridis', interpolation='nearest', extent=(x_axis[0], x_axis[-1], -1.0, 1.0))
+    plt.imshow(intensities.reshape((1, len(intensities))).repeat(len(intensities), axis=0), cmap='viridis', interpolation='nearest', extent=(x_axis[0], x_axis[-1], -1.0, 1.0), aspect=(x_axis[-1]))
+    plt.colorbar()
+    plt.show()
+
+def display_2D(intensities: np.ndarray):
+    '''
+    interpolation can be as follows
+    'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'blackman'
+    '''
+    plt.imshow(intensities, cmap='viridis', interpolation='nearest')
     plt.colorbar()
     plt.show()
