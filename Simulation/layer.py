@@ -32,7 +32,7 @@ def effect_layer_by_another(
     cartesian_phases *= np.exp(distances * -1)[:, :, np.newaxis]
     #cartesian_phases /= distances[:, :, np.newaxis]  # TODO this method has a problem related to amplitude skyrocketing if distance is small while it must not theoretically exceed source amplitude
 
-    offsets = np.mod(np.floor(phase_resolution * distances / wavelength), phase_resolution).astype(np.int8)
+    offsets = np.mod(np.floor(phase_resolution * distances / wavelength), phase_resolution).astype(int)
     rows, columns, thr_indices = np.ogrid[:cartesian_phases.shape[0], :cartesian_phases.shape[1], :cartesian_phases.shape[2]]
     thr_indices = thr_indices - offsets[:, :, np.newaxis]
     cartesian_phases = cartesian_phases[rows, columns, thr_indices]
