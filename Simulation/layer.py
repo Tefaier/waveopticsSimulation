@@ -6,7 +6,7 @@ def cartesian_product(x, y):  # makes array with (y_size, x_size, 2, 3)
     dim_y = len(y)
     dim_info = x.shape[-1]
     x_r = np.tile(x, (dim_y, 1)).reshape((dim_y, dim_x, dim_info))
-    y_r = np.repeat(y, dim_x, axis=1).reshape((dim_y, dim_x, dim_info))
+    y_r = np.repeat(y, dim_x, axis=0).reshape((dim_y, dim_x, dim_info))
     return np.concatenate([x_r, y_r], axis=2).reshape((dim_y, dim_x, 2, dim_info))
 
 def point_layer_phases_build(phases_count: int, amplitude: float) -> np.ndarray:
@@ -24,18 +24,18 @@ def effect_layer_by_another(
         wavelength: float
 ) -> np.ndarray:  # will be [[amplt at offset 0, ..., amplt at offset 2pi]] for to_effect
     phase_resolution =  effect_by_phases.shape[1]
-    cartesian_phases = np.repeat(effect_by_phases, len(to_effect), axis=1).reshape((len(effect_by_pos), len(to_effect), phase_resolution))
+    cartesian_phases = np.tile(effect_by_phases, (len(to_effect), 1)).reshape((len(effect_by_pos), len(to_effect), phase_resolution))
 
     cartesian_positions = cartesian_product(to_effect, effect_by_pos)
     distances = cartesian_positions[:, :, 0, :] - cartesian_positions[:, :, 1, :]
     distances = np.sqrt((distances*distances).sum(axis=2))
-    cartesian_phases /= distances[:, np.newaxis]  # TODO this method has a problem related to amplitude skyrocketing if distance is small while it must not theoretically exceed source amplitude
+    cartesian_phases /= distances[:, :, np.newaxis]  # TODO this method has a problem related to amplitude skyrocketing if distance is small while it must not theoretically exceed source amplitude
 
-    offsets = np.mod(np.floor(phase_resolution * distances / wavelength), phase_resolution)
+    offsets = np.mod(np.floor(phase_resolution * distances / wavelength), phase_resolution).astype(np.int8)
     rows, columns, thr_indices = np.ogrid[:cartesian_phases.shape[0], :cartesian_phases.shape[1], :cartesian_phases.shape[2]]
     thr_indices = thr_indices - offsets[:, :, np.newaxis]
     cartesian_phases = cartesian_phases[rows, columns, thr_indices]
-    return np.sum(cartesian_phases.transpose(1, 0, 2), axis=1)
+    return np.sum(cartesian_phases, axis=0)
 
 
 # https://mathworld.wolfram.com/HarmonicAdditionTheorem.html
