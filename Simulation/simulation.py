@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Simulation.layer import effect_layer_by_another, calculate_mean_intensity
+from Simulation.layer import effect_layer_by_another, calculate_mean_intensity, create_circular_appendage_filled
+
 
 def run_layers(first_layer_phases: np.ndarray, layers: list[np.ndarray], wavelength: float) -> np.ndarray:
     active_layer_phases = first_layer_phases
@@ -30,3 +31,11 @@ def display_2D(intensities: np.ndarray, extent: tuple[float, float, float, float
     plt.imshow(intensities, cmap='viridis', interpolation='bicubic', extent=extent)
     plt.colorbar()
     plt.show()
+
+def test():
+    dots = create_circular_appendage_filled(4e-7, 5e-7, 5, 300)
+    plt.scatter(dots[:, 0], dots[:, 1])
+    plt.show()
+
+if __name__ == "__main__":
+    test()

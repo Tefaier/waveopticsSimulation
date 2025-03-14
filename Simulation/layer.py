@@ -52,3 +52,28 @@ def create_line_points(width: float, resolution: int) -> np.ndarray[float]:
     dots = np.zeros((resolution, 3))
     dots[:, 0] = np.linspace(-width/2, width/2, resolution)
     return dots
+
+# https://stackoverflow.com/questions/20924085/python-conversion-between-coordinates
+def cart2pol(x, y):
+    rho = np.sqrt(x*x + y*y)
+    phi = np.arctan2(y, x)
+    return (rho, phi)
+
+def pol2cart(rho, phi):
+    x = rho * np.cos(phi)
+    y = rho * np.sin(phi)
+    return np.concatenate([x.reshape((1, len(x))), y.reshape((1, len(x)))], axis=0).transpose()
+
+# by default creates [[x, y, 0]] with center at [0, 0, 0]
+def create_circular_appendage(radius: float, resolution: int):
+    return np.concatenate([pol2cart(np.ones((resolution, ), dtype=float) * radius, np.linspace(0, 2 * np.pi * (resolution - 1) / resolution, resolution)), np.zeros((resolution, 1))], axis=1)
+
+def create_circular_appendage_filled(radius_from: float, radius_to: float, radius_resolution: int, resolution_total: int):
+    radiuses = np.linspace(radius_from, radius_to, radius_resolution)
+    numbers_at_radiuses = radiuses.copy()
+    numbers_at_radiuses *= (resolution_total / numbers_at_radiuses.sum())
+    if (radius_from == 0):
+        numbers_at_radiuses[0] = 1
+    numbers_at_radiuses = np.floor(numbers_at_radiuses).astype(int)
+    numbers_at_radiuses[-1] += (resolution_total - numbers_at_radiuses.sum())
+    return np.concatenate([create_circular_appendage(radiuses[index], numbers_at_radiuses[index]) for index in range(0, radius_resolution)], axis = 0)
