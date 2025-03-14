@@ -1,6 +1,8 @@
+import math
+
 import numpy as np
 
-from Simulation.layer import create_line_points, uniform_layer_phases_build, create_circular_appendage_filled
+from Simulation.layer import create_line_points, uniform_layer_phases_build, create_circular_appendage_filled, sunflower
 from Simulation.simulation import run_layers, display_1D, display_1D_extrapolate, display_2D
 
 
@@ -56,7 +58,7 @@ def uniform_source_circular_slit_2D():
 
 def uniform_source_circular_empty_slit_2D():
     layers = []
-    layers.append(create_circular_appendage_filled(4.8e-6, 5e-6, 3, 300))
+    layers.append(sunflower(4.8e-6, 5e-6, 300))
     screen_size = 4e-2
     screen_resolution = 50
     xv, yv, zv = np.meshgrid(np.linspace(-screen_size, screen_size, screen_resolution), np.linspace(-screen_size, screen_size, screen_resolution), 0.1)

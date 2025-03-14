@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 # https://stackoverflow.com/questions/11144513/cartesian-product-of-x-and-y-array-points-into-single-array-of-2d-points
@@ -77,3 +79,24 @@ def create_circular_appendage_filled(radius_from: float, radius_to: float, radiu
     numbers_at_radiuses = np.floor(numbers_at_radiuses).astype(int)
     numbers_at_radiuses[-1] += (resolution_total - numbers_at_radiuses.sum())
     return np.concatenate([create_circular_appendage(radiuses[index], numbers_at_radiuses[index]) for index in range(0, radius_resolution)], axis = 0)
+
+phi = (1 + math.sqrt(5)) / 2  # golden ratio
+
+def sunflower(radius_from: float, radius_to: float, resolution: int, alpha=0):
+    points = []
+    angle_stride = 2 * math.pi / phi ** 2
+    sunflower_to = int(resolution * (radius_to * radius_to) / (radius_to * radius_to - radius_from * radius_from))
+    b = round(alpha * math.sqrt(resolution))  # number of boundary points
+    for k in range(sunflower_to - resolution + 1, sunflower_to + 1):
+        r = radius(k, sunflower_to, b)
+        theta = k * angle_stride
+        points.append((r * math.cos(theta), r * math.sin(theta)))
+    points = np.array(points)
+    points *= radius_to
+    return np.concatenate([points, np.zeros((len(points), 1))], axis = 1)
+
+def radius(k, n, b):
+    if k > n - b:
+        return 1.0
+    else:
+        return math.sqrt(k - 0.5) / math.sqrt(n - (b + 1) / 2)
