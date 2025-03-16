@@ -14,33 +14,53 @@ def run_layers(first_layer_phases: np.ndarray, layers: list[np.ndarray], wavelen
 
 def display_1D(x_axis: np.ndarray, intensities: np.ndarray):
     plt.plot(x_axis, intensities)
+    plt.xlabel("screen pos, m")
+    plt.ylabel("intensity")
     plt.show()
 
-def display_1D_extrapolate(x_axis: np.ndarray[float], intensities: np.ndarray):
+def display_1D_extrapolate(x_axis: np.ndarray[float], intensities: np.ndarray, include_log: bool = False):
     '''
     interpolation can be as follows
     'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'blackman'
     '''
+    if include_log:
+        plt.figure(figsize=(11, 5))
+        plt.subplot(1, 2, 1)
     plt.imshow(intensities.reshape((1, len(intensities))).repeat(len(intensities), axis=0), cmap='viridis', interpolation='bicubic', extent=(x_axis[0], x_axis[-1], -1.0, 1.0), aspect=(x_axis[-1]))
+    plt.xlabel("screen pos x, m")
+    plt.ylabel("screen pos y, m")
     plt.colorbar()
+    if include_log:
+        plt.subplot(1, 2, 2)
+        plt.imshow(intensities.reshape((1, len(intensities))).repeat(len(intensities), axis=0), cmap='viridis',
+                   interpolation='bicubic', extent=(x_axis[0], x_axis[-1], -1.0, 1.0), aspect=(x_axis[-1]), norm=LogNorm())
+        plt.xlabel("screen pos x, m")
+        plt.ylabel("screen pos y, m")
+        plt.colorbar()
     plt.show()
 
-def display_2D(intensities: np.ndarray, extent: tuple[float, float, float, float]):
+def display_2D(intensities: np.ndarray, extent: tuple[float, float, float, float], include_log: bool = False):
     '''
     interpolation can be as follows
     'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'blackman'
     '''
-    plt.figure(figsize=(11, 5))
-    plt.subplot(1, 2, 1)
+    if include_log:
+        plt.figure(figsize=(11, 5))
+        plt.subplot(1, 2, 1)
     plt.imshow(intensities, cmap='viridis', interpolation='bicubic', extent=extent)
+    plt.xlabel("screen pos x, m")
+    plt.ylabel("screen pos y, m")
     plt.colorbar()
-    plt.subplot(1, 2, 2)
-    plt.imshow(intensities, cmap='viridis', interpolation='bicubic', extent=extent, norm=LogNorm())
-    plt.colorbar()
+    if include_log:
+        plt.subplot(1, 2, 2)
+        plt.imshow(intensities, cmap='viridis', interpolation='bicubic', extent=extent, norm=LogNorm())
+        plt.xlabel("screen pos x, m")
+        plt.ylabel("screen pos y, m")
+        plt.colorbar()
     plt.show()
 
 def test():
-    dots = create_mesh_grid_slit(1e-6, 5e-2, 5, 50)
+    dots = create_mesh_grid_slit(1e-6, 1e-5, 20, 100)
     plt.figure(figsize=(5, 5))
     plt.scatter(dots[:, 0], dots[:, 1])
     plt.show()

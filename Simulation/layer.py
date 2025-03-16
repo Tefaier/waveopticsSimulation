@@ -19,7 +19,8 @@ def point_layer_phases_build(phases_count: int, amplitude: float) -> np.ndarray[
 def uniform_layer_phases_build(layer: np.ndarray, phases_count: int, amplitude: float) -> np.ndarray[float]:
     return np.tile(point_layer_phases_build(phases_count, amplitude), (layer.shape[0], 1))
 
-maximum_calculate_size = 1e6
+# 40 MB +-
+maximum_calculate_size = 5e6
 
 def effect_layer_by_another(
         to_effect: np.ndarray,  # must be [[x, y, z]]
@@ -27,7 +28,7 @@ def effect_layer_by_another(
         effect_by_phases: np.ndarray,  # must be [[amplt at offset 0, ..., amplt at offset 2pi]]
         wavelength: float
 ) -> np.ndarray:  # will be [[amplt at offset 0, ..., amplt at offset 2pi]] for to_effect
-    to_effect_parts = np.array_split(to_effect, np.ceil(to_effect.shape[0] * effect_by_pos.shape[0] / maximum_calculate_size), axis=0)
+    to_effect_parts = np.array_split(to_effect, np.ceil(to_effect.shape[0] * effect_by_phases.size / maximum_calculate_size), axis=0)
     to_effect_phases = []
     for part in to_effect_parts:
         phase_resolution =  effect_by_phases.shape[1]
@@ -51,7 +52,7 @@ def effect_layer_by_another(
 # https://mathworld.wolfram.com/HarmonicAdditionTheorem.html
 # input as [[A1, A2, ..., An]]
 def calculate_mean_intensity(layer_phases: np.ndarray) -> np.ndarray[float]:
-    layer_parts = np.array_split(layer_phases, np.ceil(layer_phases.shape[0] * layer_phases.shape[0] / maximum_calculate_size), axis=0)
+    layer_parts = np.array_split(layer_phases, np.ceil(layer_phases.size * layer_phases.shape[1] / maximum_calculate_size), axis=0)
     result_parts = []
     for part in layer_parts:
         phase_resolution =  part.shape[1]
@@ -92,7 +93,7 @@ def create_circular_appendage_filled(radius_from: float, radius_to: float, radiu
     return np.concatenate([create_circular_appendage(radiuses[index], numbers_at_radiuses[index]) for index in range(0, radius_resolution)], axis = 0)
 
 def create_mesh_grid_slit(size_x: float, size_y: float, resolution_x: int, resolution_y: int):
-    xv, yv, zv = np.meshgrid(np.linspace(-size_x, size_x, resolution_x), np.linspace(-size_y, size_y, resolution_y), 0)
+    xv, yv, zv = np.meshgrid(np.linspace(-size_x/2, size_x/2, resolution_x), np.linspace(-size_y/2, size_y/2, resolution_y), 0)
     dots = np.concatenate(
         [
             xv.reshape((resolution_x, resolution_y, 1)),
